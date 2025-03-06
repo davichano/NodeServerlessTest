@@ -1,0 +1,51 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: davichano
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: nodeserverlesstest
+service: my-serverless-app
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ${env:AWS_REGION}
+  environment:
+    SWAPI_URL: ${env:SWAPI_URL}
+    RICKANDMORTY_URL: ${env:RICKANDMORTY_URL}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Scan
+      Resource:
+        - arn:aws:dynamodb:us-east-1:746669226497:table/StarWarsCache
+        - arn:aws:dynamodb:us-east-1:746669226497:table/StarWarsCustomData
+
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+  getFusion:
+    handler: src/handlers/getFusions.getFusion
+    events:
+      - http:
+          path: fusion/{id}
+          method: get
+  storeData:
+    handler: src/handlers/storeData.storeData
+    events:
+      - http:
+          path: store
+          method: post
+  getHistory:
+    handler: src/handlers/getHistory.getHistory
+    events:
+      - http:
+          path: history
+          method: get
+plugins:
+  - serverless-offline
